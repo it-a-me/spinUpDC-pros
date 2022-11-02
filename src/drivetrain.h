@@ -1,6 +1,7 @@
 #include "pros/motors.hpp"
 #include <string>
 #ifndef DRIVETRAIN_INCLUDED
+#define DRIVETRAIN_INCLUDED
 
 #include "main.h"
 using pros::Motor;
@@ -64,10 +65,8 @@ public:
 
     motors[front_left] = fl;
     motors[front_right] = fr;
-    motors[front_right]->set_reversed(true);
     motors[back_left] = bl;
     motors[back_right] = br;
-    motors[back_right]->set_reversed(true);
     reset_velocities();
     setStoppingMode(stoppingMode);
   };
@@ -137,8 +136,7 @@ public:
       }
       // stick movement
     } else if (LeftStick != 0 || RightStick != 0) {
-      motor_velocities[back_left] = LeftStick;
-      motor_velocities[front_left] = LeftStick;
+      motor_velocities[back_left] = LeftStick; motor_velocities[front_left] = LeftStick;
       motor_velocities[front_right] = RightStick;
       motor_velocities[back_right] = RightStick;
       // horiziontal movement
