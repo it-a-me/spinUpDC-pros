@@ -66,9 +66,9 @@ void
 autonomous()
 {
     Drivetrain drive = Drivetrain(new pros::Motor(9),
-                                  new pros::Motor(10),
+                                  new pros::Motor(-10),
                                   new pros::Motor(19),
-                                  new pros::Motor(18),
+                                  new pros::Motor(-18),
                                   pros::E_MOTOR_BRAKE_COAST);
 
     dumpy(&drive);
@@ -106,7 +106,7 @@ opcontrol()
                                   new pros::Motor(-18),
                                   pros::E_MOTOR_BRAKE_COAST);
     // initialize the spool
-    Spool spool = Spool(new pros::Motor(14), 100, &drive);
+    Spool spool = Spool(new pros::Motor(14), 44, &drive);
 
     // initialize the roller spinner
     RollerSpinner roller_spinner =

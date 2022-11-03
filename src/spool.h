@@ -26,6 +26,7 @@ class Spool
       , velocity(velocity_)
     {
         spool->set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
+        spool->set_gearing(pros::E_MOTOR_GEAR_600);
     }
     ~Spool() { delete spool; }
 
@@ -33,12 +34,12 @@ class Spool
     {
         if (unwind) {
             state = Unwinding;
-            spool->move(velocity * 127 / 100);
+            spool->move_velocity(velocity * 600 / 100);
         } else if (wind) {
             state = Winding;
-            spool->move(-velocity * 127 / 100);
+            spool->move_velocity(-velocity / 2 * 600 / 100);
         } else if (state == Unwinding) {
-            spool->move(velocity * 127 / 100);
+            spool->move_velocity(velocity * 600 / 100);
         } else {
             state = Stopped;
             spool->brake();

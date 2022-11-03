@@ -91,7 +91,7 @@ class Drivetrain
         for (int i = 0; i < 4; i++) {
             // reduce speed in slow mode
             if (unspooling) {
-                motors[i]->move((motor_velocities[i] * 0.3) * 127 / 100);
+                motors[i]->move((motor_velocities[i] * 0.4) * 127 / 100);
             } else if (slowed) {
                 motors[i]->move((motor_velocities[i] * 0.5) * 127 / 100);
             } else {
