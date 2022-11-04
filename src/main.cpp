@@ -4,6 +4,7 @@
 #include "pros/motors.h"
 
 #include "drivetrain.h"
+#include "motor.h"
 #include "rollerSpinner.h"
 #include "spool.h"
 #include "vision.h"
@@ -65,16 +66,12 @@ dumpy(Drivetrain* drive)
 void
 autonomous()
 {
-    Drivetrain drive = Drivetrain(new pros::Motor(9),
-                                  new pros::Motor(-10),
-                                  new pros::Motor(19),
-                                  new pros::Motor(-18),
-                                  pros::E_MOTOR_BRAKE_COAST);
+    Drivetrain drive = Drivetrain(
+      Motor(9), Motor(-10), Motor(19), Motor(-18), pros::E_MOTOR_BRAKE_BRAKE);
 
     dumpy(&drive);
     drive.stop();
-    RollerSpinner roller_spinner =
-      RollerSpinner(new pros::Motor(12), 40, &drive);
+    RollerSpinner roller_spinner = RollerSpinner(Motor(12), 40, &drive);
 }
 
 /**
@@ -100,26 +97,22 @@ opcontrol()
     pros::Controller master(pros::E_CONTROLLER_MASTER);
 
     // initialize the drivetrian
-    Drivetrain drive = Drivetrain(new pros::Motor(9),
-                                  new pros::Motor(-10),
-                                  new pros::Motor(19),
-                                  new pros::Motor(-18),
-                                  pros::E_MOTOR_BRAKE_COAST);
+    Drivetrain drive = Drivetrain(
+      Motor(9), Motor(-10), Motor(19), Motor(-18), pros::E_MOTOR_BRAKE_COAST);
     // initialize the spool
-    Spool spool = Spool(new pros::Motor(14), 44, &drive);
+    Spool spool = Spool(Motor(14), 44, &drive);
 
     // initialize the roller spinner
-    RollerSpinner roller_spinner =
-      RollerSpinner(new pros::Motor(12), 60, &drive);
+    RollerSpinner roller_spinner = RollerSpinner(Motor(12), 60, &drive);
 
     while (true) {
 
-        pros::lcd::print(2, "%d", vision.red_on_top());
-        // allows user to control robot
+        // pros::lcd::print(2, "%d", vision.red_on_top());
+        //  allows user to control robot
         drive.userControl(master.get_analog(ANALOG_LEFT_Y),
                           master.get_analog(ANALOG_RIGHT_Y),
-                          master.get_digital(pros::E_CONTROLLER_DIGITAL_L1),
-                          master.get_digital(pros::E_CONTROLLER_DIGITAL_R1));
+                          master.get_digital(pros::E_CONTROLLER_DIGITAL_L2),
+                          master.get_digital(pros::E_CONTROLLER_DIGITAL_R2));
 
         // start continously unspooling if "a" is pressed
         // spool only while "b" is held down
@@ -127,8 +120,8 @@ opcontrol()
                      master.get_digital(pros::E_CONTROLLER_DIGITAL_B));
         // clockwise "L2" counterclockwise "R2"
         roller_spinner.update(
-          master.get_digital(pros::E_CONTROLLER_DIGITAL_L2),
-          master.get_digital(pros::E_CONTROLLER_DIGITAL_R2));
+          master.get_digital(pros::E_CONTROLLER_DIGITAL_L1),
+          master.get_digital(pros::E_CONTROLLER_DIGITAL_R1));
         // drivetrain motors take effect
         drive.drive();
         pros::delay(20);

@@ -7,19 +7,17 @@ class RollerSpinner
     // pointers to drivetrain and roller spinning motor
   private:
     Drivetrain* drive;
-    Motor* spinner;
-    int velocity;
+    Motor spinner;
 
     // constructor of roller spinner class
   public:
-    RollerSpinner(Motor* spinner_, int velocity_, Drivetrain* drive_)
-      : spinner(spinner_)
-      , velocity(velocity_)
+    RollerSpinner(Motor spinner_, int velocity_, Drivetrain* drive_)
+      : spinner(std::move(spinner_))
       , drive(drive_)
     {
-        spinner->set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
+        spinner.rpm = velocity_;
+        spinner.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
     }
-    ~RollerSpinner() { delete spinner; }
 
     // spins the wheel either forward or reverse.  If the wheel is spining also
     // slightly drive backwards to apply pressure on the wheel.
@@ -35,12 +33,12 @@ class RollerSpinner
             // dr->fl = -8;
             // dr->bl = -8;
             if (fwd) {
-                spinner->move(velocity * 127 / 100);
+                spinner.spin_rpm(1);
             } else if (rev) {
-                spinner->move(-velocity * 127 / 100);
+                spinner.spin_rpm(-1);
             }
         } else {
-            spinner->brake();
+            spinner.brake();
         }
     }
 };
