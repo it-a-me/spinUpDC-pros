@@ -1,7 +1,7 @@
 {
     "py/object": "pros.conductor.project.Project",
     "py/state": {
-        "project_name": "tippingPointDC-pros",
+        "project_name": "spinUpDC-pros",
         "target": "v5",
         "templates": {
             "kernel": {
