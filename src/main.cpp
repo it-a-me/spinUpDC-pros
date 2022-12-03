@@ -9,6 +9,11 @@
 #include "spool.h"
 #include "vision.h"
 
+#define FRONT_LEFT -9
+#define FRONT_RIGHT 10
+#define BACK_LEFT -19
+#define BACK_RIGHT 18
+
 /**
  * Runs initialization code. This occurs as soon as the program is started.
  *
@@ -67,7 +72,7 @@ void
 autonomous()
 {
     Drivetrain drive = Drivetrain(
-      Motor(9), Motor(-10), Motor(19), Motor(-18), pros::E_MOTOR_BRAKE_BRAKE);
+      Motor(FRONT_LEFT), Motor(FRONT_RIGHT), Motor(BACK_LEFT), Motor(BACK_RIGHT), pros::E_MOTOR_BRAKE_BRAKE);
 
     dumpy(&drive);
     drive.stop();
@@ -98,8 +103,8 @@ opcontrol()
 
     // initialize the drivetrian
     Drivetrain drive = Drivetrain(
-      Motor(9), Motor(-10), Motor(19), Motor(-18), pros::E_MOTOR_BRAKE_COAST);
-    // initialize the spool
+      Motor(FRONT_LEFT), Motor(FRONT_RIGHT), Motor(BACK_LEFT), Motor(BACK_RIGHT), pros::E_MOTOR_BRAKE_BRAKE);
+// initialize the spool
     Spool spool = Spool(Motor(14), 44, &drive);
 
     // initialize the roller spinner

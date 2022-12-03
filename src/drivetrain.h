@@ -154,6 +154,10 @@ class Drivetrain
             horizontal(HorizontalDir::Left);
         } else if (right) {
             horizontal(HorizontalDir::Right);
+        } else {
+            for (Motor& motor : motors) {
+                motor.voltage = 0;
+            }
         }
     }
     // drive for a set time
