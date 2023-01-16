@@ -27,7 +27,7 @@ class Drivetrain
     // array of motor velocities
     array<int, 4> motor_velocities = { 0, 0, 0, 0 };
     // speed of horizontal movement
-    int horizontalVelocity = 70;
+    int horizontalVelocity = 100;
     // if we are in precision slower speed or max speed
     bool slowed = false;
 

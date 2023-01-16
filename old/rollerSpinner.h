@@ -22,10 +22,10 @@ public:
 //spins the wheel either forward or reverse.  If the wheel is spining also slightly drive backwards to apply pressure on the wheel.
   void update(bool fwd, bool rev) {
     if (fwd || rev) {
-      drive->setMotorVelocity(Drivetrain::MotorPosition::front_left, -8);
-      drive->setMotorVelocity(Drivetrain::MotorPosition::front_right, -2);
-      drive->setMotorVelocity(Drivetrain::MotorPosition::back_right, -2);
-      drive->setMotorVelocity(Drivetrain::MotorPosition::back_left, -8);
+      drive->setMotorVelocity(Drivetrain::MotorPosition::front_left, -16);
+      drive->setMotorVelocity(Drivetrain::MotorPosition::front_right, -4);
+      drive->setMotorVelocity(Drivetrain::MotorPosition::back_right, -4);
+      drive->setMotorVelocity(Drivetrain::MotorPosition::back_left, -16);
       // dr->fr = -2;
       // dr->br = -2;
       // dr->fl = -8;

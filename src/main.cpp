@@ -7,6 +7,14 @@
 #include "rollerSpinner.h"
 #include "spool.h"
 #include "vision.h"
+#define FRONT_LEFT -9
+#define FRONT_RIGHT 10
+#define BACK_LEFT -19
+#define BACK_RIGHT 18
+// new pros::Motor(-9),
+//                                   new pros::Motor(10),
+//                                   new pros::Motor(-19),
+//                                   new pros::Motor(18),
 
 /**
  * Runs initialization code. This occurs as soon as the program is started.
@@ -64,16 +72,50 @@ dumpy(Drivetrain* drive)
 void
 autonomous()
 {
-    Drivetrain drive = Drivetrain(new pros::Motor(9),
-                                  new pros::Motor(-10),
-                                  new pros::Motor(19),
-                                  new pros::Motor(-18),
+    // Drivetrain drive = Drivetrain(new pros::Motor(9),
+    //                               new pros::Motor(-10),
+    //                               new pros::Motor(19),
+    //                               new pros::Motor(-18),
+    //                               pros::E_MOTOR_BRAKE_COAST);
+
+    // dumpy(&drive);
+    // drive.stop();
+    // RollerSpinner roller_spinner =
+    //   RollerSpinner(new pros::Motor(12), 40, &drive);
+    Drivetrain drive = Drivetrain(new pros::Motor(FRONT_LEFT),
+                                  new pros::Motor(FRONT_RIGHT),
+                                  new pros::Motor(BACK_LEFT),
+                                  new pros::Motor(BACK_RIGHT),
                                   pros::E_MOTOR_BRAKE_COAST);
 
-    dumpy(&drive);
-    drive.stop();
-    RollerSpinner roller_spinner =
-      RollerSpinner(new pros::Motor(12), 40, &drive);
+    drive.userControl(-40, -30, false,false);
+    Motor roller_spinner = Motor(12);
+    roller_spinner.set_gearing(pros::E_MOTOR_GEAR_RED);
+    drive.drive();
+    pros::delay(1000);
+
+    roller_spinner.move_relative(-345, 60);
+    pros::delay(2000);
+    drive.userControl(70, -70, 0, 0);
+    drive.drive();
+    pros::delay(1000);
+    drive.userControl(100, 100, 0, 0);
+    drive.drive();
+    pros::delay(3000);
+    // drive.stop();
+    // drive.userControl(-100, -100, 0, 0);
+    // drive.drive();
+    // pros::delay(500);
+    drive.userControl(-100, -100, 0, 0);
+    drive.drive();
+
+    pros::delay(500);
+
+    drive.userControl(0, 0, 0, 0);
+    drive.drive();
+
+    
+
 }
 
 /**
@@ -99,10 +141,10 @@ opcontrol()
     pros::Controller master(pros::E_CONTROLLER_MASTER);
 
     // initialize the drivetrian
-    Drivetrain drive = Drivetrain(new pros::Motor(9),
-                                  new pros::Motor(-10),
-                                  new pros::Motor(19),
-                                  new pros::Motor(-18),
+    Drivetrain drive = Drivetrain(new pros::Motor(-9),
+                                  new pros::Motor(10),
+                                  new pros::Motor(-19),
+                                  new pros::Motor(18),
                                   pros::E_MOTOR_BRAKE_COAST);
     // initialize the spool
     Spool spool = Spool(new pros::Motor(14), 44, &drive);
@@ -117,8 +159,8 @@ opcontrol()
         // allows user to control robot
         drive.userControl(master.get_analog(ANALOG_LEFT_Y),
                           master.get_analog(ANALOG_RIGHT_Y),
-                          master.get_digital(pros::E_CONTROLLER_DIGITAL_L1),
-                          master.get_digital(pros::E_CONTROLLER_DIGITAL_R1));
+                          master.get_digital(pros::E_CONTROLLER_DIGITAL_L2),
+                          master.get_digital(pros::E_CONTROLLER_DIGITAL_R2));
 
         // start continously unspooling if "a" is pressed
         // spool only while "b" is held down
@@ -126,8 +168,8 @@ opcontrol()
                      master.get_digital(pros::E_CONTROLLER_DIGITAL_B));
         // clockwise "L2" counterclockwise "R2"
         roller_spinner.update(
-          master.get_digital(pros::E_CONTROLLER_DIGITAL_L2),
-          master.get_digital(pros::E_CONTROLLER_DIGITAL_R2));
+          master.get_digital(pros::E_CONTROLLER_DIGITAL_L1),
+          master.get_digital(pros::E_CONTROLLER_DIGITAL_R1));
         // drivetrain motors take effect
         drive.drive();
         pros::delay(20);

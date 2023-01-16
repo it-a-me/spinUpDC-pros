@@ -2,6 +2,7 @@
 #define SPOOL_INCLUDED
 
 #include "drivetrain.h"
+#include "pros/motors.h"
 
 class Spool
 {
@@ -25,7 +26,7 @@ class Spool
       , spool(spool_)
       , velocity(velocity_)
     {
-        spool->set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
+        spool->set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
         spool->set_gearing(pros::E_MOTOR_GEAR_600);
     }
     ~Spool() { delete spool; }
