@@ -4,13 +4,18 @@
 #include "pros/motors.h"
 
 #include "drivetrain.h"
+#include "pros/motors.hpp"
 #include "rollerSpinner.h"
 #include "spool.h"
 #include "vision.h"
-#define FRONT_LEFT -9
-#define FRONT_RIGHT 10
+#define FRONT_LEFT 9
+#define FRONT_RIGHT -10
 #define BACK_LEFT -19
 #define BACK_RIGHT 18
+
+#define REVERSE -16
+#define FOREWARD 17
+
 // new pros::Motor(-9),
 //                                   new pros::Motor(10),
 //                                   new pros::Motor(-19),
@@ -134,6 +139,8 @@ autonomous()
 void
 opcontrol()
 {
+  // pros::Motor(FOREWARD).set_gearing(pros::E_MOTOR_GEAR_BLUE);
+  // pros::Motor(REVERSE).set_gearing(pros::E_MOTOR_GEAR_BLUE);
     VisionSensor vision =
       VisionSensor(new pros::Vision(6, pros::E_VISION_ZERO_TOPLEFT));
 
@@ -172,6 +179,17 @@ opcontrol()
           master.get_digital(pros::E_CONTROLLER_DIGITAL_R1));
         // drivetrain motors take effect
         drive.drive();
+        if (master.get_digital(pros::E_CONTROLLER_DIGITAL_X)) {
+          
+          pros::Motor(FOREWARD) = 127;
+          pros::Motor(REVERSE)  = 127;
+          // pros::Motor(FOREWARD).move_velocity(500);
+          // pros::Motor(REVERSE) .move_velocity(500);
+        } else {
+  pros::Motor(FOREWARD) = 0;
+          pros::Motor(REVERSE) = 0;
+
+        }
         pros::delay(20);
     }
 }
