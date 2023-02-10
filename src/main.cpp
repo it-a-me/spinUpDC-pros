@@ -8,13 +8,14 @@
 #include "rollerSpinner.h"
 #include "spool.h"
 #include "vision.h"
-#define FRONT_LEFT 9
-#define FRONT_RIGHT -10
-#define BACK_LEFT -19
-#define BACK_RIGHT 18
+#define FRONT_LEFT 17
+#define FRONT_RIGHT -11
+#define BACK_LEFT -16
+#define BACK_RIGHT 19
 
-#define REVERSE -16
-#define FOREWARD 17
+
+#define REVERSE 9
+#define FOREWARD -10
 
 // new pros::Motor(-9),
 //                                   new pros::Motor(10),
@@ -31,7 +32,7 @@ void
 initialize()
 {
     pros::lcd::initialize();
-    pros::lcd::set_text(1, "Hello Declan");
+    pros::lcd::set_text(1, "Hello Decln");
 }
 
 /**
@@ -148,10 +149,10 @@ opcontrol()
     pros::Controller master(pros::E_CONTROLLER_MASTER);
 
     // initialize the drivetrian
-    Drivetrain drive = Drivetrain(new pros::Motor(-9),
-                                  new pros::Motor(10),
-                                  new pros::Motor(-19),
-                                  new pros::Motor(18),
+    Drivetrain drive = Drivetrain(new pros::Motor(FRONT_LEFT),
+                                  new pros::Motor(FRONT_RIGHT),
+                                  new pros::Motor(BACK_LEFT),
+                                  new pros::Motor(BACK_RIGHT),
                                   pros::E_MOTOR_BRAKE_COAST);
     // initialize the spool
     Spool spool = Spool(new pros::Motor(14), 44, &drive);
