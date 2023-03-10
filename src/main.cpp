@@ -127,6 +127,9 @@ autonomous()
 
     drive.userControl(0, 0, 0, 0);
     drive.drive();
+
+
+
 }
 
 /**
@@ -153,18 +156,31 @@ loader_task(void* args)
     loader.set_brake_mode(pros::E_MOTOR_BRAKE_BRAKE);
     loader.tare_position();
     while (true) {
-        if (master->get_digital(pros::E_CONTROLLER_DIGITAL_DOWN)) {
+        if (master->get_digital(pros::E_CONTROLLER_DIGITAL_UP)) {
+            loader.move_velocity(loader_speed);
+            pros::delay(20);
+            loader.tare_position();
+        } else if (master->get_digital(pros::E_CONTROLLER_DIGITAL_DOWN)) {
             loader.move_velocity(-loader_speed);
             pros::delay(20);
             loader.tare_position();
         } else if (master->get_digital(pros::E_CONTROLLER_DIGITAL_A)) {
-            while (loader.get_position() < 200) {
+            while (loader.get_position() < 150) {
                 loader.move_velocity(loader_speed);
                 pros::delay(20);
+                if (master->get_digital(pros::E_CONTROLLER_DIGITAL_UP) ||
+                    master->get_digital(pros::E_CONTROLLER_DIGITAL_DOWN) ||
+                    master->get_digital_new_press(pros::E_CONTROLLER_DIGITAL_A)) {
+                    break;
+                }
             }
             while (loader.get_position() > 0) {
                 loader.move_velocity(-loader_speed);
                 pros::delay(20);
+                if (master->get_digital(pros::E_CONTROLLER_DIGITAL_UP) ||
+                    master->get_digital(pros::E_CONTROLLER_DIGITAL_DOWN)) {
+                    break;
+                }
             }
             loader.brake();
             pros::delay(20);
@@ -203,7 +219,7 @@ opcontrol()
 
     // initialize the roller spinner
     RollerSpinner roller_spinner =
-      RollerSpinner(new pros::Motor(ROLLER_SPINNER), 60, &drive);
+      RollerSpinner(new pros::Motor(ROLLER_SPINNER), 120, &drive);
 
     pros::Motor foreword = pros::Motor(FOREWARD);
     pros::Motor backwards = pros::Motor(FOREWARD);
@@ -211,6 +227,7 @@ opcontrol()
     pros::lcd::print(2, "%d", vision.red_on_top());
 
     while (true) {
+        bool left = master.get_digital(pros::E_CONTROLLER_DIGITAL_LEFT);
 
         // allows user to control robot
         drive.userControl(master.get_analog(ANALOG_LEFT_Y),
@@ -223,17 +240,23 @@ opcontrol()
         // spool.update(master.get_digital(pros::E_CONTROLLER_DIGITAL_A),
         //              master.get_digital(pros::E_CONTROLLER_DIGITAL_B));
         // clockwise "L2" counterclockwise "R2"
-        roller_spinner.update(
-          master.get_digital(pros::E_CONTROLLER_DIGITAL_L1),
-          master.get_digital(pros::E_CONTROLLER_DIGITAL_R1));
+        bool clockwise = master.get_digital(pros::E_CONTROLLER_DIGITAL_L1) &&
+                         !master.get_digital(pros::E_CONTROLLER_DIGITAL_LEFT);
+        bool counterclockwise =
+          master.get_digital(pros::E_CONTROLLER_DIGITAL_L1) &&
+          master.get_digital(pros::E_CONTROLLER_DIGITAL_LEFT);
+
+        roller_spinner.update(clockwise, counterclockwise);
         // drivetrain motors take effect
         drive.drive();
-        if (master.get_digital(pros::E_CONTROLLER_DIGITAL_X)) {
+        if (master.get_digital(pros::E_CONTROLLER_DIGITAL_X) ||
+            master.get_digital(pros::E_CONTROLLER_DIGITAL_R1) && !left) {
             pros::Motor(FOREWARD).move_velocity(140);
             pros::Motor(REVERSE).move_velocity(140);
             // pros::Motor(FOREWARD) = 127;
             // pros::Motor(REVERSE) = 127;
-        } else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_B)) {
+        } else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_B) ||
+                   master.get_digital(pros::E_CONTROLLER_DIGITAL_R1) && left) {
             pros::Motor(FOREWARD).move_velocity(-10);
             pros::Motor(REVERSE).move_velocity(-10);
         } else {
@@ -241,6 +264,6 @@ opcontrol()
             pros::Motor(REVERSE).move(0);
         }
 
-        pros::delay(20);
+        pros::delay(10);
     }
 }
