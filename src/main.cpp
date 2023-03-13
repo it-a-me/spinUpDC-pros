@@ -12,13 +12,6 @@
 #include "pros/rtos.hpp"
 #include "pros/screen.hpp"
 #include "rollerSpinner.h"
-#include "spool.h"
-#include "vision.h"
-// new pros::Motor(-9),
-//                                   new pros::Motor(10),
-//                                   new pros::Motor(-19),
-//                                   new pros::Motor(18),
-
 /**
  * Runs initialization code. This occurs as soon as the program is started.
  *
