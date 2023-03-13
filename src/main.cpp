@@ -11,8 +11,10 @@
 #include "pros/rtos.h"
 #include "pros/rtos.hpp"
 #include "pros/screen.hpp"
+#include "robot.h"
 #include "rollerSpinner.h"
 #include "shooter.h"
+#include "tasks.h"
 /**
  * Runs initialization code. This occurs as soon as the program is started.
  *
@@ -115,102 +117,7 @@ autonomous()
  */
 
 void
-loader_task(void* args)
-{
-    auto* master = (pros::Controller*)args;
-    const int loader_speed = 50;
-    auto loader = pros::Motor(LOADER);
-    loader.set_encoder_units(pros::E_MOTOR_ENCODER_DEGREES);
-    loader.set_brake_mode(pros::E_MOTOR_BRAKE_BRAKE);
-    loader.tare_position();
-    while (true) {
-        if (master->get_digital(pros::E_CONTROLLER_DIGITAL_UP)) {
-            loader.move_velocity(loader_speed);
-            pros::delay(20);
-            loader.tare_position();
-        } else if (master->get_digital(pros::E_CONTROLLER_DIGITAL_DOWN)) {
-            loader.move_velocity(-loader_speed);
-            pros::delay(20);
-            loader.tare_position();
-        } else if (master->get_digital(pros::E_CONTROLLER_DIGITAL_A)) {
-            while (loader.get_position() < 150) {
-                loader.move_velocity(loader_speed);
-                pros::delay(20);
-                if (master->get_digital(pros::E_CONTROLLER_DIGITAL_UP) ||
-                    master->get_digital(pros::E_CONTROLLER_DIGITAL_DOWN) ||
-                    master->get_digital_new_press(
-                      pros::E_CONTROLLER_DIGITAL_A)) {
-                    break;
-                }
-            }
-            while (loader.get_position() > 0) {
-                loader.move_velocity(-loader_speed);
-                pros::delay(20);
-                if (master->get_digital(pros::E_CONTROLLER_DIGITAL_UP) ||
-                    master->get_digital(pros::E_CONTROLLER_DIGITAL_DOWN)) {
-                    break;
-                }
-            }
-            loader.brake();
-            pros::delay(20);
-
-            // auto piston = pros::ADIDigitalOut(PNEUMATICS);
-            // piston.set_value(true);
-            // pros::delay(1000);
-            // piston.set_value(false);
-        } else {
-            loader.brake();
-            pros::delay(20);
-        }
-    }
-    // ...
-}
-void
 opcontrol()
 {
-    // initialize the controller
-    pros::Controller master(pros::E_CONTROLLER_MASTER);
-
-    // initialize the drivetrian
-    auto drive = Drivetrain(pros::E_MOTOR_BRAKE_COAST);
-
-    // initialize the shooter
-    auto shooter = Shooter();
-
-    // start loader task
-    pros::Task loader_t(loader_task, (void*)&master, "loader task");
-
-    // initialize the roller spinner
-    RollerSpinner roller_spinner = RollerSpinner(120, &drive);
-
-    while (true) {
-        bool left = master.get_digital(pros::E_CONTROLLER_DIGITAL_LEFT);
-
-        // allows user to control robot
-        drive.userControl(master.get_analog(ANALOG_LEFT_Y),
-                          master.get_analog(ANALOG_RIGHT_Y),
-                          master.get_digital(pros::E_CONTROLLER_DIGITAL_L2),
-                          master.get_digital(pros::E_CONTROLLER_DIGITAL_R2));
-
-        bool clockwise = master.get_digital(pros::E_CONTROLLER_DIGITAL_L1) &&
-                         !master.get_digital(pros::E_CONTROLLER_DIGITAL_LEFT);
-        bool counterclockwise =
-          master.get_digital(pros::E_CONTROLLER_DIGITAL_L1) &&
-          master.get_digital(pros::E_CONTROLLER_DIGITAL_LEFT);
-
-        roller_spinner.update(clockwise, counterclockwise);
-        // drivetrain motors take effect
-        drive.drive();
-        if (master.get_digital(pros::E_CONTROLLER_DIGITAL_X) ||
-            master.get_digital(pros::E_CONTROLLER_DIGITAL_R1) && !left) {
-            shooter.shoot();
-        } else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_B) ||
-                   master.get_digital(pros::E_CONTROLLER_DIGITAL_R1) && left) {
-            shooter.load();
-        } else {
-            shooter.brake();
-        }
-
-        pros::delay(10);
-    }
+    Robot().Usercontrol();
 }
