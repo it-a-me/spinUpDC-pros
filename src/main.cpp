@@ -23,7 +23,7 @@
 #define REVERSE -3
 #define FOREWARD 4
 
-#define LOADER -10
+#define LOADER -2
 #define PNEUMATICS 'H'
 // new pros::Motor(-9),
 //                                   new pros::Motor(10),
