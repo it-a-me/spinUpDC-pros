@@ -6,6 +6,7 @@
 #include "pros/motors.h"
 
 #include "drivetrain.h"
+#include "ports.h"
 #include "pros/motors.hpp"
 #include "pros/rtos.h"
 #include "pros/rtos.hpp"
@@ -13,7 +14,6 @@
 #include "rollerSpinner.h"
 #include "spool.h"
 #include "vision.h"
-#include "ports.h"
 // new pros::Motor(-9),
 //                                   new pros::Motor(10),
 //                                   new pros::Motor(-19),
@@ -116,9 +116,6 @@ autonomous()
 
     drive.userControl(0, 0, 0, 0);
     drive.drive();
-
-
-
 }
 
 /**
@@ -159,7 +156,8 @@ loader_task(void* args)
                 pros::delay(20);
                 if (master->get_digital(pros::E_CONTROLLER_DIGITAL_UP) ||
                     master->get_digital(pros::E_CONTROLLER_DIGITAL_DOWN) ||
-                    master->get_digital_new_press(pros::E_CONTROLLER_DIGITAL_A)) {
+                    master->get_digital_new_press(
+                      pros::E_CONTROLLER_DIGITAL_A)) {
                     break;
                 }
             }
@@ -188,11 +186,6 @@ loader_task(void* args)
 void
 opcontrol()
 {
-    // pros::Motor(FOREWARD).set_gearing(pros::E_MOTOR_GEAR_BLUE);
-    // pros::Motor(REVERSE).set_gearing(pros::E_MOTOR_GEAR_BLUE);
-    VisionSensor vision =
-      VisionSensor(new pros::Vision(6, pros::E_VISION_ZERO_TOPLEFT));
-
     // initialize the controller
     pros::Controller master(pros::E_CONTROLLER_MASTER);
 
@@ -210,10 +203,8 @@ opcontrol()
     RollerSpinner roller_spinner =
       RollerSpinner(new pros::Motor(ROLLER_SPINNER), 120, &drive);
 
-    pros::Motor foreword = pros::Motor(FOREWARD);
-    pros::Motor backwards = pros::Motor(FOREWARD);
-
-    pros::lcd::print(2, "%d", vision.red_on_top());
+    auto foreword = pros::Motor(FOREWARD);
+    auto backwards = pros::Motor(FOREWARD);
 
     while (true) {
         bool left = master.get_digital(pros::E_CONTROLLER_DIGITAL_LEFT);
@@ -224,11 +215,6 @@ opcontrol()
                           master.get_digital(pros::E_CONTROLLER_DIGITAL_L2),
                           master.get_digital(pros::E_CONTROLLER_DIGITAL_R2));
 
-        // start continously unspooling if "a" is pressed
-        // spool only while "b" is held down
-        // spool.update(master.get_digital(pros::E_CONTROLLER_DIGITAL_A),
-        //              master.get_digital(pros::E_CONTROLLER_DIGITAL_B));
-        // clockwise "L2" counterclockwise "R2"
         bool clockwise = master.get_digital(pros::E_CONTROLLER_DIGITAL_L1) &&
                          !master.get_digital(pros::E_CONTROLLER_DIGITAL_LEFT);
         bool counterclockwise =
@@ -242,8 +228,6 @@ opcontrol()
             master.get_digital(pros::E_CONTROLLER_DIGITAL_R1) && !left) {
             pros::Motor(FOREWARD).move_velocity(140);
             pros::Motor(REVERSE).move_velocity(140);
-            // pros::Motor(FOREWARD) = 127;
-            // pros::Motor(REVERSE) = 127;
         } else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_B) ||
                    master.get_digital(pros::E_CONTROLLER_DIGITAL_R1) && left) {
             pros::Motor(FOREWARD).move_velocity(-10);
