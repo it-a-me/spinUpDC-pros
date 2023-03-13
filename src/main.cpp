@@ -68,24 +68,12 @@ dumpy(Drivetrain* drive)
 void
 autonomous()
 {
-    // Drivetrain drive = Drivetrain(new pros::Motor(9),
-    //                               new pros::Motor(-10),
-    //                               new pros::Motor(19),
-    //                               new pros::Motor(-18),
-    //                               pros::E_MOTOR_BRAKE_COAST);
-
-    // dumpy(&drive);
-    // drive.stop();
     // RollerSpinner roller_spinner =
     //   RollerSpinner(new pros::Motor(12), 40, &drive);
-    Drivetrain drive = Drivetrain(new pros::Motor(FRONT_LEFT),
-                                  new pros::Motor(FRONT_RIGHT),
-                                  new pros::Motor(BACK_LEFT),
-                                  new pros::Motor(BACK_RIGHT),
-                                  pros::E_MOTOR_BRAKE_COAST);
+    auto drive = Drivetrain(pros::E_MOTOR_BRAKE_COAST);
 
     drive.userControl(-40, -30, false, false);
-    Motor roller_spinner = Motor(ROLLER_SPINNER);
+    auto roller_spinner = pros::Motor(ROLLER_SPINNER);
     roller_spinner.set_gearing(pros::E_MOTOR_GEAR_RED);
     drive.drive();
     pros::delay(1000);
@@ -183,18 +171,13 @@ opcontrol()
     pros::Controller master(pros::E_CONTROLLER_MASTER);
 
     // initialize the drivetrian
-    Drivetrain drive = Drivetrain(new pros::Motor(FRONT_LEFT),
-                                  new pros::Motor(FRONT_RIGHT),
-                                  new pros::Motor(BACK_LEFT),
-                                  new pros::Motor(BACK_RIGHT),
-                                  pros::E_MOTOR_BRAKE_COAST);
+    auto drive = Drivetrain(pros::E_MOTOR_BRAKE_COAST);
     pros::Task loader_t(loader_task, (void*)&master, "loader task");
     // initialize the spool
     // Spool spool = Spool(new pros::Motor(14), 44, &drive);
 
     // initialize the roller spinner
-    RollerSpinner roller_spinner =
-      RollerSpinner(new pros::Motor(ROLLER_SPINNER), 120, &drive);
+    RollerSpinner roller_spinner = RollerSpinner(120, &drive);
 
     auto foreword = pros::Motor(FOREWARD);
     auto backwards = pros::Motor(FOREWARD);
