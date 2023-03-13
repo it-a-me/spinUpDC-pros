@@ -36,10 +36,10 @@ class Drivetrain
   protected:
     // array of the 4 motors in the drivetrain
     array<Wheel, 4> wheels = {
-        Wheel(FRONT_LEFT),
-        Wheel(FRONT_RIGHT),
-        Wheel(BACK_LEFT),
-        Wheel(BACK_RIGHT),
+        Wheel(DRIVETRAIN_FRONT_LEFT),
+        Wheel(DRIVETRAIN_FRONT_RIGHT),
+        Wheel(DRIVETRAIN_BACK_LEFT),
+        Wheel(DRIVETRAIN_BACK_RIGHT),
     };
     // speed of horizontal movement
     int horizontalVelocity = 100;
