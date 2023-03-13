@@ -12,6 +12,7 @@
 #include "pros/rtos.hpp"
 #include "pros/screen.hpp"
 #include "rollerSpinner.h"
+#include "shooter.h"
 /**
  * Runs initialization code. This occurs as soon as the program is started.
  *
@@ -172,15 +173,15 @@ opcontrol()
 
     // initialize the drivetrian
     auto drive = Drivetrain(pros::E_MOTOR_BRAKE_COAST);
+
+    // initialize the shooter
+    auto shooter = Shooter();
+
+    // start loader task
     pros::Task loader_t(loader_task, (void*)&master, "loader task");
-    // initialize the spool
-    // Spool spool = Spool(new pros::Motor(14), 44, &drive);
 
     // initialize the roller spinner
     RollerSpinner roller_spinner = RollerSpinner(120, &drive);
-
-    auto foreword = pros::Motor(FOREWARD);
-    auto backwards = pros::Motor(FOREWARD);
 
     while (true) {
         bool left = master.get_digital(pros::E_CONTROLLER_DIGITAL_LEFT);
@@ -202,15 +203,12 @@ opcontrol()
         drive.drive();
         if (master.get_digital(pros::E_CONTROLLER_DIGITAL_X) ||
             master.get_digital(pros::E_CONTROLLER_DIGITAL_R1) && !left) {
-            pros::Motor(FOREWARD).move_velocity(140);
-            pros::Motor(REVERSE).move_velocity(140);
+            shooter.shoot();
         } else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_B) ||
                    master.get_digital(pros::E_CONTROLLER_DIGITAL_R1) && left) {
-            pros::Motor(FOREWARD).move_velocity(-10);
-            pros::Motor(REVERSE).move_velocity(-10);
+            shooter.load();
         } else {
-            pros::Motor(FOREWARD).move(0);
-            pros::Motor(REVERSE).move(0);
+            shooter.brake();
         }
 
         pros::delay(10);

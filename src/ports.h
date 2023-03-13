@@ -6,8 +6,13 @@
 
 #define ROLLER_SPINNER 1
 
-#define REVERSE -3
-#define FOREWARD 4
+#define SHOOTER_LEFT -3 
+#define SHOOTER_RIGHT 4 
 
 #define LOADER -2
 #define PNEUMATICS 'H'
+
+
+//legacy
+#define REVERSE SHOOTER_LEFT
+#define FOREWARD SHOOTER_RIGHT
