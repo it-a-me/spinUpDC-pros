@@ -181,6 +181,13 @@ class Drivetrain
         pros::delay(seconds * 1000);
         this->stop();
     }
+    void roller_reverse()
+    {
+        wheels[front_left].velocity = -32;
+        wheels[front_right].velocity = -8;
+        wheels[back_right].velocity = -8;
+        wheels[back_left].velocity = -32;
+    }
 };
 
 #endif

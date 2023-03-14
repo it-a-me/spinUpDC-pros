@@ -15,12 +15,15 @@ class Robot
   protected:
     pros::Controller master = pros::Controller(pros::E_CONTROLLER_MASTER);
     Drivetrain drive = Drivetrain(brake_mode::E_MOTOR_BRAKE_COAST);
-    RollerSpinner roller_spinner = RollerSpinner(100, &drive);
+    RollerSpinner roller_spinner = RollerSpinner(&drive);
     Shooter shooter = Shooter();
     void primary_mode()
     {
-        roller_spinner.update(master.get_digital(pros::E_CONTROLLER_DIGITAL_L1),
-                              false);
+        if (master.get_digital(pros::E_CONTROLLER_DIGITAL_L1)) {
+            roller_spinner.spin_forward();
+        } else {
+            roller_spinner.brake();
+        }
         if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) {
             shooter.shoot();
         } else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_B)) {
@@ -31,8 +34,11 @@ class Robot
     }
     void alt_mode()
     {
-        roller_spinner.update(
-          false, master.get_digital(pros::E_CONTROLLER_DIGITAL_L1));
+        if (master.get_digital(pros::E_CONTROLLER_DIGITAL_L1)) {
+            roller_spinner.spin_reverse();
+        } else {
+            roller_spinner.brake();
+        }
         if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R1) ||
             master.get_digital(pros::E_CONTROLLER_DIGITAL_B)) {
             shooter.load();
