@@ -6,9 +6,21 @@ using std::array;
 #include <string>
 
 #include "pros/motors.hpp"
-using pros::Motor;
 
 #include "main.h"
+#include "ports.h"
+
+class Wheel
+{
+  public:
+    pros::Motor motor;
+    int velocity = 0;
+    explicit Wheel(std::int8_t port)
+      : motor(pros::Motor(port))
+    {
+    }
+};
+
 // manual drivetrain implementation
 class Drivetrain
 {
@@ -23,9 +35,12 @@ class Drivetrain
 
   protected:
     // array of the 4 motors in the drivetrain
-    array<pros::Motor*, 4> motors;
-    // array of motor velocities
-    array<int, 4> motor_velocities = { 0, 0, 0, 0 };
+    array<Wheel, 4> wheels = {
+        Wheel(DRIVETRAIN_FRONT_LEFT),
+        Wheel(DRIVETRAIN_FRONT_RIGHT),
+        Wheel(DRIVETRAIN_BACK_LEFT),
+        Wheel(DRIVETRAIN_BACK_RIGHT),
+    };
     // speed of horizontal movement
     int horizontalVelocity = 100;
     // if we are in precision slower speed or max speed
@@ -35,24 +50,24 @@ class Drivetrain
     void horizontal(HorizontalDir dir)
     {
         if (dir == HorizontalDir::Left) {
-            motor_velocities[front_left] += -horizontalVelocity;
-            motor_velocities[front_right] += horizontalVelocity;
-            motor_velocities[back_left] += horizontalVelocity;
-            motor_velocities[back_right] += -horizontalVelocity;
+            wheels[front_left].velocity += -horizontalVelocity;
+            wheels[front_right].velocity += horizontalVelocity;
+            wheels[back_left].velocity += horizontalVelocity;
+            wheels[back_right].velocity += -horizontalVelocity;
 
         } else if (dir == HorizontalDir::Right) {
-            motor_velocities[front_left] += horizontalVelocity;
-            motor_velocities[front_right] += -horizontalVelocity;
-            motor_velocities[back_left] += -horizontalVelocity;
-            motor_velocities[back_right] += horizontalVelocity;
+            wheels[front_left].velocity += horizontalVelocity;
+            wheels[front_right].velocity += -horizontalVelocity;
+            wheels[back_left].velocity += -horizontalVelocity;
+            wheels[back_right].velocity += horizontalVelocity;
         }
     }
 
     // resets motor velocities to 0 to ensure that they get reset between frames
     void reset_velocities()
     {
-        for (int& velocity : motor_velocities) {
-            velocity = 0;
+        for (Wheel& wheel : wheels) {
+            wheel.velocity = 0;
         }
     }
 
@@ -68,61 +83,43 @@ class Drivetrain
         back_right,
     };
     // drivetrain constructor to ensure no null references
-    Drivetrain(Motor* front_left_,
-               Motor* front_right_,
-               Motor* back_left_,
-               Motor* back_right_,
-               pros::motor_brake_mode_e stoppingMode)
-      : motors({ front_left_, front_right_, back_left_, back_right_ })
+    explicit Drivetrain(pros::motor_brake_mode_e stoppingMode)
     {
         reset_velocities();
         setStoppingMode(stoppingMode);
     };
-    ~Drivetrain()
-    {
-        for (Motor* m : motors) {
-            delete m;
-        }
-    }
 
     // tell motors to act on current velocities
     void drive()
     {
-        for (int i = 0; i < 4; i++) {
-            // reduce speed in slow mode
-            if (unspooling) {
-                motors[i]->move((motor_velocities[i] * 0.4) * 127 / 100);
-            } else if (slowed) {
-                motors[i]->move((motor_velocities[i] * 0.5) * 127 / 100);
-            } else {
-                motors[i]->move(motor_velocities[i] * 127 / 100);
-            }
+        for (Wheel& wheel : wheels) {
+            wheel.motor.move(wheel.velocity * 127 / 100);
         }
-
-        // reset velocities to prevent carry over between frames
         reset_velocities();
     }
+
+    // reset velocities to prevent carry over between frames
     // limits access to private fields
-    int getMotorVelocity(MotorPosition pos) { return motor_velocities[pos]; }
+    int getMotorVelocity(MotorPosition pos) { return wheels[pos].velocity; }
 
     void setMotorVelocity(MotorPosition pos, int vel)
     {
-        motor_velocities[pos] = vel;
+        wheels[pos].velocity = vel;
     }
 
     // sets stoping mode for all motors at once
     void setStoppingMode(pros::motor_brake_mode_e mode)
     {
-        for (Motor* motor : motors) {
-            motor->set_brake_mode(mode);
+        for (Wheel& wheel : wheels) {
+            wheel.motor.set_brake_mode(mode);
         }
     }
 
     // stops all drivetrain motors
     void stop()
     {
-        for (Motor* motor : motors) {
-            motor->brake();
+        for (Wheel& wheel : wheels) {
+            wheel.motor.brake();
         }
     }
 
@@ -139,24 +136,24 @@ class Drivetrain
         RightStick = RightStick * 100 / 127;
         // mix horizontal and stick movement
         if ((LeftStick != 0 || RightStick != 0) && (left || right)) {
-            motor_velocities[back_left] = LeftStick;
-            motor_velocities[front_left] = LeftStick;
-            motor_velocities[front_right] = RightStick;
-            motor_velocities[back_right] = RightStick;
+            wheels[back_left].velocity = LeftStick;
+            wheels[front_left].velocity = LeftStick;
+            wheels[front_right].velocity = RightStick;
+            wheels[back_right].velocity = RightStick;
             if (left) {
                 horizontal(HorizontalDir::Left);
             } else if (right) {
                 horizontal(HorizontalDir::Right);
             }
-            for (int& velocity : motor_velocities) {
-                velocity /= 2;
+            for (Wheel& wheel : wheels) {
+                wheel.velocity /= 2;
             }
             // stick movement
         } else if (LeftStick != 0 || RightStick != 0) {
-            motor_velocities[back_left] = LeftStick;
-            motor_velocities[front_left] = LeftStick;
-            motor_velocities[front_right] = RightStick;
-            motor_velocities[back_right] = RightStick;
+            wheels[back_left].velocity = LeftStick;
+            wheels[front_left].velocity = LeftStick;
+            wheels[front_right].velocity = RightStick;
+            wheels[back_right].velocity = RightStick;
             // horiziontal movement
         } else if (left) {
             horizontal(HorizontalDir::Left);
@@ -167,10 +164,10 @@ class Drivetrain
     // drive for a set time
     void AutonomousDrive(int left, int right, double seconds)
     {
-        motor_velocities[back_left] = left;
-        motor_velocities[front_left] = left;
-        motor_velocities[front_right] = right;
-        motor_velocities[back_right] = right;
+        wheels[back_left].velocity = left;
+        wheels[front_left].velocity = left;
+        wheels[front_right].velocity = right;
+        wheels[back_right].velocity = right;
 
         this->drive();
         pros::delay(seconds * float(1000));
@@ -183,6 +180,13 @@ class Drivetrain
         this->drive();
         pros::delay(seconds * 1000);
         this->stop();
+    }
+    void roller_reverse()
+    {
+        wheels[front_left].velocity = -32;
+        wheels[front_right].velocity = -8;
+        wheels[back_right].velocity = -8;
+        wheels[back_left].velocity = -32;
     }
 };
 
